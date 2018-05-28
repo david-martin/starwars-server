@@ -127,18 +127,14 @@ const resolvers = {
       return models.Note.build(note).save();
     },
     updateNote: (root, { note }) => {
-      notes[_.findIndex(notes, {
-        id: note.id
-      })] = note;
-      console.log('notes updateNote', notes);
-      return note
+      return models.Note.findById(note.id).then((existing_note) => {
+        return existing_note.update(note);
+      });
     },
     deleteNote: (root, { note }) => {
-      _.remove(notes, {
-        id: id
+      return models.Note.findById(note.id).then((existing_note) => {
+        return existing_note.destroy({force: true});
       });
-      console.log('notes deleteNote', notes);
-      return note;
     },
   },
 }
