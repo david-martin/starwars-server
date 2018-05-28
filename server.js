@@ -7,6 +7,7 @@ import { SubscriptionServer } from 'subscriptions-transport-ws';
 import cors from 'cors';
 
 import schema from './data/schema';
+import models from './models/index.js';
 
 const PORT = 8080;
 
@@ -24,16 +25,26 @@ app.get('/graphiql', graphiqlExpress({
 
 // Wrap the Express server
 const ws = createServer(app);
-ws.listen(PORT, () => {
-  console.log(`Apollo Server is now running on http://localhost:${PORT}`);
-  // Set up the WebSocket for handling GraphQL subscriptions
-  // eslint-disable-next-line
-  new SubscriptionServer({
-    execute,
-    subscribe,
-    schema,
-  }, {
-    server: ws,
-    path: '/websocket',
+
+models.sequelize.sync()
+.then(function() {
+
+// console.log('models', models);
+  ws.listen(PORT, () => {
+    console.log(`Apollo Server is now running on http://localhost:${PORT}`);
+    // Set up the WebSocket for handling GraphQL subscriptions
+    // eslint-disable-next-line
+    new SubscriptionServer({
+      execute,
+      subscribe,
+      schema,
+    }, {
+      server: ws,
+      path: '/websocket',
+    });
   });
+})
+.catch(function (e) {
+    throw new Error(e);
 });
+

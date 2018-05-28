@@ -12,11 +12,23 @@ import {
   GraphQLInterfaceType,
   GraphQLEnumType,
   GraphQLList,
+  GraphQLID,
+  GraphQLInt,
   GraphQLNonNull,
   GraphQLString
 } from 'graphql';
 
 import * as _ from "lodash";
+// import { Client } from "pg";
+// const client = new Client({
+//   connectionString: 'postgresql://postgres:mysecretpassword@localhost:5432/postgres'
+// })
+// client.connect();
+// client.query('SELECT NOW()', (err, res) => {
+//   console.log(err, res)
+// });
+
+import models from '../models/index.js';
 
 import { makeExecutableSchema } from 'graphql-tools';
 
@@ -54,32 +66,65 @@ input NoteInput {
 }
 `;
 
-const notes = [
-  {
-    id: '2000',
-    title: 'C-3PO',
-    content: 'note content',
-    createdAt: 1527106784849
-  },
-];
+// const notes = [
+//   {
+//     id: '2000',
+//     title: 'C-3PO',
+//     content: 'note content',
+//     createdAt: 1527106784849
+//   },
+// ];
+
+// const resolvers = {
+//   Query: {
+//     readNote: (root, { id }) => {
+//       console.log('notes readNote', notes);
+//       return _.find(notes, {
+//         id: id
+//       });
+//     },
+//     listNotes: () => {
+//       return notes;
+//     }
+//   },
+//   Mutation: {
+//     createNote: (root, { note }) => {
+//       notes.push(note);
+//       console.log('notes createNote', notes);
+//       return note;
+//     },
+//     updateNote: (root, { note }) => {
+//       notes[_.findIndex(notes, {
+//         id: note.id
+//       })] = note;
+//       console.log('notes updateNote', notes);
+//       return note
+//     },
+//     deleteNote: (root, { note }) => {
+//       _.remove(notes, {
+//         id: id
+//       });
+//       console.log('notes deleteNote', notes);
+//       return note;
+//     },
+//   },
+// }
+
 
 const resolvers = {
   Query: {
     readNote: (root, { id }) => {
-      console.log('notes readNote', notes);
-      return _.find(notes, {
-        id: id
-      });
+      console.log('notes readNote', id);
+      return models.Note.findById(id);
     },
     listNotes: () => {
-      return notes;
+      console.log('notes listNotes');
+      return models.Note.findAll();
     }
   },
   Mutation: {
     createNote: (root, { note }) => {
-      notes.push(note);
-      console.log('notes createNote', notes);
-      return note;
+      return models.Note.build(note).save();
     },
     updateNote: (root, { note }) => {
       notes[_.findIndex(notes, {
