@@ -1,0 +1,31 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# The query type, represents all of the entry points into our object graph
+type Query {
+  readNote(id: String): Note
+  listNotes: [Note]
+}
+
+# The mutation type, represents all updates we can make to our data
+type Mutation {
+  createNote(note: NoteInput): Note
+  updateNote(note: NoteInput): Note
+  deleteNote(note: NoteInput): Note
+}
+
+type Note {
+  id: String
+  title: String
+  content: String
+  createdAt: Float
+}
+
+input NoteInput {
+  id: String!
+  title: String
+  content: String
+  createdAt: Float
+}
