@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    createdAt: {
+    timestamp: {
       type: DataTypes.BIGINT,
       allowNull: false
     }

@@ -26,6 +26,10 @@ import { makeExecutableSchema } from 'graphql-tools';
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { PubSub, SubscriptionManager, withFilter } from 'graphql-subscriptions';
+const pubsub = new PubSub();
+const CREATED_NOTE_TOPIC = 'new_note';
+
 const schemaString = fs.readFileSync(path.join(__dirname, 'schema.graphql')).toString();
 
 const resolvers = {
@@ -41,7 +45,12 @@ const resolvers = {
   },
   Mutation: {
     createNote: (root, { note }) => {
-      return models.Note.build(note).save();
+      let newNote = models.Note.build(note).save();
+      // This is a simplified pub/sub setup that doesn't take
+      // into account if the model created OK, or return the
+      // resulting created model
+      pubsub.publish(CREATED_NOTE_TOPIC, {noteCreated: note});
+      return newNote;
     },
     updateNote: (root, { note }) => {
       return models.Note.findById(note.id).then((existing_note) => {
@@ -54,6 +63,18 @@ const resolvers = {
       });
     },
   },
+  Subscription: {
+    noteCreated: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(CREATED_NOTE_TOPIC),
+        (payload, variables) => {
+          return payload !== undefined;
+            // return (payload !== undefined) && 
+            // ((variables.episode === null) || (payload.reviewAdded.episode === variables.episode));
+        }
+      ),
+    }
+  }
 }
 
 /**

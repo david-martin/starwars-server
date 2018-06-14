@@ -1,6 +1,7 @@
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
 # The query type, represents all of the entry points into our object graph
@@ -20,12 +21,16 @@ type Note {
   id: String
   title: String
   content: String
-  createdAt: Float
+  timestamp: Float
 }
 
 input NoteInput {
   id: String!
   title: String
   content: String
-  createdAt: Float
+  timestamp: Float
+}
+
+type Subscription {
+  noteCreated: Note
 }
